@@ -1,0 +1,53 @@
+name: Unzip and Build
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  unzip-and-build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Find and unzip file
+      run: |
+        # Tìm file zip đầu tiên trong repository
+        zip_file=$(find . -name "*.zip" -type f | head -1)
+        if [ -n "$zip_file" ]; then
+          echo "Tim thay file zip: $zip_file"
+          unzip -o "$zip_file"
+          rm "$zip_file"
+          echo "Da giai nen va xoa file zip"
+        else
+          echo "Khong tim thay file zip nao"
+        fi
+        ls -la
+    
+    - name: Set up JDK 21
+      uses: actions/setup-java@v4
+      with:
+        java-version: '21'
+        distribution: 'temurin'
+    
+    - name: Grant execute permission for gradlew
+      run: |
+        chmod +x gradlew 2>/dev/null || echo "Khong tim thay gradlew"
+    
+    - name: Build with Gradle
+      run: |
+        if [ -f "gradlew" ]; then
+          ./gradlew build
+        else
+          echo "Loi: Khong tim thay gradlew"
+          exit 1
+        fi
+    
+    - name: Upload JAR file
+      uses: actions/upload-artifact@v4
+      with:
+        name: doubleclickmod-jar
+        path: build/libs/*.jar
