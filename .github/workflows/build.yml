@@ -1,4 +1,4 @@
-name: Build Minecraft Mod
+name: Build Mod
 
 on:
   push:
@@ -18,14 +18,11 @@ jobs:
         java-version: '21'
         distribution: 'temurin'
     
-    - name: Make gradlew executable
-      run: chmod +x gradlew
-    
     - name: Build with Gradle
-      run: ./gradlew build
+      run: gradle build
     
-    - name: Upload JAR file
+    - name: Upload JAR
       uses: actions/upload-artifact@v4
       with:
-        name: doubleclickmod-jar
+        name: doubleclickmod
         path: build/libs/*.jar
